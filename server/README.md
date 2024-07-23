@@ -6,7 +6,11 @@
 
 我们支持商业私有化部署
 
-官网在线体验：https://docmee.cn
+官网在线体验（开放API）：[https://docmee.cn](https://docmee.cn/)
+
+开放平台（API/UI 接入）： https://docmee.cn/open-platform
+
+
 
 进群交流：
 

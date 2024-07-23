@@ -26,7 +26,7 @@
 
 ## AI 生成 PPT
 
-根据该技术，开源了 ai 生成 ppt 项目：
+基于该技术，我开源了 ai 生成 ppt 项目，github：
 
 https://github.com/veasion/aippt
 
@@ -36,7 +36,9 @@ https://github.com/veasion/aippt
 
 针对上面技术，我们开发了一套可商用 aippt 软件，
 
-官网地址：https://docmee.cn
+官网在线体验（开放API）：[https://docmee.cn](https://docmee.cn/)
+
+开放平台（API/UI 接入）： https://docmee.cn/open-platform
 
 
 
