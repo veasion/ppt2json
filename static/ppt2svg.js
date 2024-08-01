@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// import { geometryPaths } from './geometry.js'
+// import { drawChart } from './chart.js'
+
 function D3Element(element) {
     this.attr = function (k, v) {
         if (v == undefined) {
@@ -40,16 +44,25 @@ function D3Element(element) {
         }
     }
 }
+
 const d3 = {
     select: function (o) {
         return new D3Element((typeof o == 'string') ? document.querySelector(o) : o)
+    },
+    addEventListener: function (type, event, fun) {
+        if (type === 'window') {
+            window.addEventListener(event, fun)
+        } else if (type === 'document') {
+            document.addEventListener(event, fun)
+        }
     }
 }
-function Ppt2Svg(svgId, svgWidth, svgHeight) {
-	var pptx = null
-	var page = null
+
+function Ppt2Svg(_svg, svgWidth, svgHeight) {
+    var pptx = null
+    var page = null
     var imageCache = {}
-	var pageIndex = 0
+    var pageIndex = 0
     var ctx = {}
     var idMap = {}
     var counter = 0
@@ -58,8 +71,12 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
     var pointList = []
     var mTimer = null
     var currentPoint = null
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const $this = this
-    var svg = d3.select('#' + svgId).attr('width', svgWidth || 960).attr('height', svgHeight || 540)
+
+    const svg = d3.select((typeof _svg == 'string') ? ('#' + _svg) : _svg)
+                .attr('width', svgWidth || 960)
+                .attr('height', svgHeight || 540)
 
     this.drawPptx = (pptxObj, pageIdx) => {
         ctx = {}
@@ -259,7 +276,7 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
     }
 
     function drawElement(obj, parent) {
-        if (obj.noDraw || !obj.extInfo.property.anchor) {
+        if (obj.noDraw || !obj.extInfo.property.anchor || obj.extInfo.property.hidden) {
             // console.log('ignore element:', obj)
             return
         }
@@ -284,8 +301,8 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
     }
 
     function drawText(obj, parent) {
-        property = obj.extInfo.property
-        geometryName = (property.geometry || {}).name || 'rect'
+        let property = obj.extInfo.property
+        let geometryName = (property.geometry || {}).name || 'rect'
         let g = shapeHandle(property, parent, true)
         g.attr('id', 'g-' + obj.id)
         addElementEvent(g, obj)
@@ -310,8 +327,8 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
         if (!obj.children || obj.children.length == 0) {
             return
         }
-        property = obj.extInfo.property
-        anchor = property.anchor
+        let property = obj.extInfo.property
+        let anchor = property.anchor
         let wordWrap = property.textWordWrap
         let textInsets = property.textInsets || [0, 0, 0, 0]
         let isVertical = property.textDirection && property.textDirection.indexOf('VERTICAL') > -1
@@ -461,33 +478,33 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
         let lineWidth = top.lineWidth
         let stroke = toColor({ color: top.color }, 'white')
         parent.append('line')
-              .attr('x1', x).attr('y1', y)
-              .attr('x2', endX).attr('y2', y)
-              .attr('style', `stroke: ${stroke};stroke-width: ${lineWidth}`)
+                .attr('x1', x).attr('y1', y)
+                .attr('x2', endX).attr('y2', y)
+                .attr('style', `stroke: ${stroke};stroke-width: ${lineWidth}`)
         // right
         let right = borders[3]
         lineWidth = right.lineWidth
         stroke = toColor({ color: right.color }, 'white')
         parent.append('line')
-                  .attr('x1',endX).attr('y1', y)
-                  .attr('x2', endX).attr('y2', endY)
-                  .attr('style', `stroke: ${stroke};stroke-width: ${lineWidth}`)
+                    .attr('x1',endX).attr('y1', y)
+                    .attr('x2', endX).attr('y2', endY)
+                    .attr('style', `stroke: ${stroke};stroke-width: ${lineWidth}`)
         // bottom
         let bottom = borders[2]
         lineWidth = bottom.lineWidth
         stroke = toColor({ color: bottom.color }, 'white')
         parent.append('line')
-                  .attr('x1',endX).attr('y1', endY)
-                  .attr('x2', x).attr('y2', endY)
-                  .attr('style', `stroke: ${stroke};stroke-width: ${lineWidth}`)
+                    .attr('x1',endX).attr('y1', endY)
+                    .attr('x2', x).attr('y2', endY)
+                    .attr('style', `stroke: ${stroke};stroke-width: ${lineWidth}`)
         // left
         let left = borders[1]
         lineWidth = left.lineWidth
         stroke = toColor({ color: left.color }, 'white')
         parent.append('line')
-                  .attr('x1',x).attr('y1', endY)
-                  .attr('x2', x).attr('y2', y)
-                  .attr('style', `stroke: ${stroke};stroke-width: ${lineWidth}`)
+                    .attr('x1',x).attr('y1', endY)
+                    .attr('x2', x).attr('y2', y)
+                    .attr('style', `stroke: ${stroke};stroke-width: ${lineWidth}`)
         if (property.fillStyle) {
             let fill = toPaint(property.fillStyle, property.anchor)
             parent.append('rect')
@@ -672,9 +689,9 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
     }
 
     function toShadow(shadow, anchor, scaleX, scaleY) {
-		if (!shadow) {
-			return null
-		}
+        if (!shadow) {
+            return null
+        }
         scaleX = scaleX || 1
         scaleY = scaleY || 1
         let stdDeviation = (shadow.blur || 0) / Math.max(scaleX, scaleY) / 5
@@ -689,20 +706,20 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
         filter.append('feGaussianBlur').attr('in', 'SourceAlpha').attr('stdDeviation', stdDeviation).attr('result', 'blur')
         filter.append('feFlood').attr('flood-color', color).attr('result', 'color')
         filter.append('feComposite').attr('in', 'color').attr('in2', 'blur').attr('operator', 'in').attr('result', 'shadow')
-		if (shadow.distance) {
-			let radians = (shadow.angle || 0) * Math.PI / 180
-			let x = 0, y = 0
+        if (shadow.distance) {
+            let radians = (shadow.angle || 0) * Math.PI / 180
+            let x = 0, y = 0
             let rx = shadow.distance / scaleX
             let ry = shadow.distance / scaleY
-			let shadowOffsetX = x + rx * Math.cos(radians)
-			let shadowOffsetY = y + ry * Math.sin(radians)
+            let shadowOffsetX = x + rx * Math.cos(radians)
+            let shadowOffsetY = y + ry * Math.sin(radians)
             filter.append('feOffset').attr('dx', shadowOffsetX).attr('dy', shadowOffsetY).attr('result', 'offsetBlur')
-		}
+        }
         let feMerge = filter.append('feMerge')
         feMerge.append('feMergeNode').attr('in', 'offsetBlur')
         feMerge.append('feMergeNode').attr('in', 'SourceGraphic')
         return `url(#${filterId})`
-	}
+    }
 
     function toPaint(paint, anchor, params) {
         if (!paint) {
@@ -826,22 +843,22 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
             let imgData = imgCtx.createImageData(width, height)
             let line = 0
             for (let i = 0; i < imgData.data.length; i += 4) {
-              if (++line % 16 == 0) {
-                  // 前景
+                if (++line % 16 == 0) {
+                    // 前景
                 imgData.data[i + 0] = (fgColor >> 16) & 255
                 imgData.data[i + 1] = (fgColor >> 8) & 255
                 imgData.data[i + 2] = (fgColor >> 0) & 255
                 imgData.data[i + 3] = (fgColor >> 24) & 255
-              } else {
-                  // 背景
+                } else {
+                    // 背景
                 imgData.data[i + 0] = (bgColor >> 16) & 255
                 imgData.data[i + 1] = (bgColor >> 8) & 255
                 imgData.data[i + 2] = (bgColor >> 0) & 255
                 imgData.data[i + 3] = (bgColor >> 24) & 255
-              }
-              if (i % 400 == 0) {
+                }
+                if (i % 400 == 0) {
                 line += 2
-              }
+                }
             }
             imgCtx.putImageData(imgData, 0, 0)
             let imgSrc = imgCanvas.toDataURL('image/png')
@@ -953,7 +970,7 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
                     data[i + 2] = gray * b + (1 - gray) * prst
                 }
                 patternCtx.putImageData(imageData, 0, 0)
-            } catch(e) {}
+            } catch(e) { /* empty */ }
         }
         // let mode = texture.alignment ? 'repeat' : 'no-repeat'
         let imgSrc = patternCanvas.toDataURL('image/png')
@@ -1055,10 +1072,10 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
             if (img == null) {
                 img = new Image()
                 let eqOrigin = src.startsWith('data:') || src.startsWith(document.location.origin) || (src.startsWith('//') && (document.location.protocol + src).startsWith(document.location.origin))
-				if (!eqOrigin) {
-				    img.crossOrigin = 'anonymous'
-				}
-				img.src = src
+                if (!eqOrigin) {
+                    img.crossOrigin = 'anonymous'
+                }
+                img.src = src
                 img.onload = function() {
                     imageCache[cacheKey] = img
                     resolve(img)
@@ -1074,8 +1091,12 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
     }
 
     function calcPointList(page) {
+        let svgNode = svg.node()
+        let svgRect = svgNode.getClientRects()[0]
+        if (!svgRect) {
+            return
+        }
         pointList = []
-        let svgRect = svg.node().getClientRects()[0]
         let svgScaleX = svgRect.width / pptx.width
         let svgScaleY = svgRect.height / pptx.height
         recursion(page.children, c => {
@@ -1176,12 +1197,25 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
                 point[0] = point[0] + tx
                 point[1] = point[1] + ty
                 let anchor = obj.extInfo.property.anchor
-                anchor[0] = anchor[0] + tx * (anchor[2] / point[2])
-                anchor[1] = anchor[1] + ty * (anchor[3] / point[3])
+                if (point !== anchor) {
+                    anchor[0] = anchor[0] + tx * (anchor[2] / point[2])
+                    anchor[1] = anchor[1] + ty * (anchor[3] / point[3])
+                }
                 let interiorAnchor = obj.extInfo.property.interiorAnchor
                 if (interiorAnchor) {
                     interiorAnchor[0] = interiorAnchor[0] + tx * (interiorAnchor[2] / point[2])
                     interiorAnchor[1] = interiorAnchor[1] + ty * (interiorAnchor[3] / point[3])
+                }
+                if (obj.type == 'table') {
+                    let rows = obj.children || []
+                    for (let i = 0; i < rows.length; i++) {
+                        let columns = rows[i].children || []
+                        for (let j = 0; j < columns.length; j++) {
+                            let columnAnchor = columns[j].extInfo.property.anchor
+                            columnAnchor[0] = columnAnchor[0] + tx
+                            columnAnchor[1] = columnAnchor[1] + ty
+                        }
+                    }
                 }
             }
             let tx = 0, ty = 0
@@ -1270,8 +1304,10 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
         textarea.style.resize = 'none'
         textarea.style.overflow = 'hidden'
         textarea.style.outline = '1px dashed #f35858'
-        textarea.style.left = rect.x + 'px'
-        textarea.style.top = rect.y + 'px'
+        let scrollY = window.scrollY || document.documentElement.scrollTop
+        let scrollX = window.scrollX || document.documentElement.scrollLeft
+        textarea.style.left = (rect.x + scrollX) + 'px'
+        textarea.style.top = (rect.y + scrollY) + 'px'
         let isMultiLine = rect.height >= fontSize * 2
         let textWordWrap = textObj.extInfo.property.textWordWrap
         if (isMultiLine) {
@@ -1336,12 +1372,16 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
     this.loadImage = loadImage
     this.text = text
 
-    document.addEventListener('mousemove', function(event) {
-        if (!pptxObj) {
+    d3.addEventListener('document', 'mousemove', function(event) {
+        if (!pptx) {
             removePoint()
             return
         }
-        let svgRect = svg.node().getClientRects()[0]
+        let svgNode = svg.node()
+        let svgRect = svgNode.getClientRects()[0]
+        if (!svgRect) {
+            return
+        }
         let clientX = event.clientX
         let clientY = event.clientY
         if (!(clientX >= svgRect.x && clientX <= svgRect.x + svgRect.width && clientY >= svgRect.y && clientY <= svgRect.y + svgRect.height)) {
@@ -1388,11 +1428,43 @@ function Ppt2Svg(svgId, svgWidth, svgHeight) {
             }
         }, 10)
     })
-    window.addEventListener('scroll', function() {
+    d3.addEventListener('document', 'keydown', function (event) {
+        if (!currentPoint) {
+            return
+        }
+        let obj = currentPoint.obj
+        if (!obj.point || obj.type == 'tableColumn') {
+            return
+        }
+        let gNode = document.getElementById('g-' + obj.id)
+        if (!gNode) {
+            return
+        }
+        if (event.keyCode == 46 && confirm(`确认删除 ${obj.type} 元素吗？`)) {
+            recursion(page.children, element => {
+                if (obj.id == element.id) {
+                    const children = element.pid ? idMap[element.pid].children : page.children
+                    for (let i = 0; i < children.length; i++) {
+                        if (children[i].id == element.id) {
+                            children.splice(i, 1)
+                            delete idMap[obj.id]
+                            gNode.remove()
+                            currentPoint = null
+                            calcPointList(page)
+                            break
+                        }
+                    }
+                }
+            })
+        }
+    })
+    d3.addEventListener('window', 'scroll', function() {
         removePoint()
     })
-    window.addEventListener('resize', function() {
+    d3.addEventListener('window', 'resize', function() {
         removePoint()
         page && calcPointList(page)
     })
 }
+
+// export { D3Element, d3, Ppt2Svg }
