@@ -68,7 +68,7 @@
     <div style="margin-top: 50px;">
         <input id="file" type="file" accept="application/vnd.openxmlformats-officedocument.presentationml.presentation, application/json" onclick="document.getElementById('file').value = ''" onchange="ppt2json()" />
         <span id="refresh_json" style="color: #999;cursor: pointer;margin-right: 15px;" title="刷新JSON数据" onclick="refreshJson()">刷新</span>
-        <span id="download_json" style="color: #317ef3;display: none;cursor: pointer;margin-right: 15px;" title="下载json数据" onclick="downloadJson()">下载json文件</span>
+        <!-- <span id="download_json" style="color: #317ef3;display: none;cursor: pointer;margin-right: 15px;" title="下载json数据" onclick="downloadJson()">下载json文件</span> -->
         <span id="download_pptx" style="color: #317ef3;display: none;cursor: pointer;" title="渲染pptx并下载" onclick="json2ppt()">渲染pptx并下载</span>
     </div>
     <div id="json" style="margin-top: 20px"></div>
