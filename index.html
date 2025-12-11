@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>ppt2json</title>
+    <title data-i18n="ppt2json_title">ppt2json</title>
     <link rel="stylesheet" href="static/jsoneditor.min.css">
     <script src="static/jsoneditor.min.js"></script>
     <style>
@@ -61,39 +61,56 @@
         #container > svg {
             border: 1px solid #ccc;
         }
+        .lang-switch {
+            position: fixed;
+            top: 10px;
+            right: 15px;
+            z-index: 9999;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            user-select: none;
+        }
+        .lang-switch:hover {
+            color: #491ff8;
+        }
     </style>
 </head>
 <body style="margin: 20px">
-    <a href="https://docmee.cn" target="_blank" class="docmee" title="进入文多多AiPPT官网">文多多 AiPPT</a>
+    <a href="https://docmee.cn" target="_blank" class="docmee" data-i18n="brand_title" title="进入文多多AiPPT官网">文多多 AiPPT</a>
+    <div class="lang-switch" onclick="toggleLanguage()">
+        <span id="lang-text">EN</span>
+    </div>
     <div style="margin-top: 50px;">
         <input id="file" type="file" accept="application/vnd.openxmlformats-officedocument.presentationml.presentation, application/json" onclick="document.getElementById('file').value = ''" onchange="ppt2json()" />
-        <span id="refresh_json" style="color: #999;cursor: pointer;margin-right: 15px;" title="刷新JSON数据" onclick="refreshJson()">刷新</span>
-        <!-- <span id="download_json" style="color: #317ef3;display: none;cursor: pointer;margin-right: 15px;" title="下载json数据" onclick="downloadJson()">下载json文件</span> -->
-        <span id="download_pptx" style="color: #317ef3;display: none;cursor: pointer;" title="渲染pptx并下载" onclick="json2ppt()">渲染pptx并下载</span>
+        <span id="refresh_json" style="color: #999;cursor: pointer;margin-right: 15px;" data-i18n-title="refresh_json_title" data-i18n="refresh_json" title="刷新JSON数据" onclick="refreshJson()">刷新</span>
+        <span id="download_json" style="color: #317ef3;display: none;cursor: pointer;margin-right: 15px;" data-i18n-title="download_json_title" data-i18n="download_json" title="下载json数据" onclick="downloadJson()">下载json文件</span>
+        <span id="download_pptx" style="color: #317ef3;display: none;cursor: pointer;" data-i18n-title="render_download_pptx_title" data-i18n="render_download_pptx" title="渲染pptx并下载" onclick="json2ppt()">渲染pptx并下载</span>
     </div>
     <div id="json" style="margin-top: 20px"></div>
     <div>
         <ul id="pageList"></ul>
-        <span>编辑模式：</span>
+        <span data-i18n="edit_mode_label">编辑模式：</span>
         <input id="mode_checkbox" type="checkbox" checked onchange="changeMode()" />
         <select id="insert_element" style="display: none;margin-left: 10px" onchange="insertElement(this.value.split(',')[0], this.value.split(',')[1])">
-            <option value="">-- 插入元素 --</option>
-            <option value="text,title1">插入大标题</option>
-            <option value="text,title2">插入副标题</option>
-            <option value="text,content">插入正文文本</option>
-            <option value="image">插入图片</option>
-            <option value="geometry">插入随机形状</option>
-            <option value="table">插入表格</option>
-            <option value="chart,bar">插入柱状图</option>
-            <option value="chart,pie">插入饼图</option>
-            <option value="chart,doughnut">插入环形图</option>
-            <option value="chart,line">插入折线图</option>
+            <option value="" data-i18n="insert_element_title">-- 插入元素 --</option>
+            <option value="text,title1" data-i18n="insert_title1">插入大标题</option>
+            <option value="text,title2" data-i18n="insert_title2">插入副标题</option>
+            <option value="text,content" data-i18n="insert_content">插入正文文本</option>
+            <option value="image" data-i18n="insert_image">插入图片</option>
+            <option value="geometry" data-i18n="insert_geometry">插入随机形状</option>
+            <option value="table" data-i18n="insert_table">插入表格</option>
+            <option value="chart,bar" data-i18n="insert_bar_chart">插入柱状图</option>
+            <option value="chart,pie" data-i18n="insert_pie_chart">插入饼图</option>
+            <option value="chart,doughnut" data-i18n="insert_doughnut_chart">插入环形图</option>
+            <option value="chart,line" data-i18n="insert_line_chart">插入折线图</option>
         </select>
     </div>
     <div id="container" style="margin-top: 10px;">
         <svg id="ppt_svg"></svg>
     </div>
 </body>
+<script src="static/i18n.js"></script>
 <script src="static/chart.js"></script>
 <script src="static/geometry.js"></script>
 <script src="static/ppt2svg.js"></script>
@@ -118,13 +135,13 @@
                 drawPageList(pptxObj)
             }
             reader.onerror = function(e) {
-                editor.set({ message: '读取错误: ' + e.target.error })
+                editor.set({ message: t('read_error') + e.target.error })
             }
             reader.readAsText(file)
             return
         }
         if (file.size > 1048576 * 50) {
-          alert('文件不能超过50M')
+          alert(t('file_too_large'))
           return
         }
         if (file) {
@@ -132,7 +149,7 @@
             formData.append('file', file)
             let xhr = new XMLHttpRequest()
             xhr.open('POST', 'https://docmee.cn/api/public/ppt/ppt2json?apiKey=' + apiKey)
-            editor.set({ message: '解析中，请稍后...' })
+            editor.set({ message: t('parsing_msg') })
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
@@ -145,13 +162,13 @@
                         editor.set(pptxObj)
                         drawPageList(pptxObj)
                     } else {
-                        editor.set({ message: 'http status: ' + xhr.status })
+                        editor.set({ message: t('http_status') + xhr.status })
                     }
                 }
             }
             xhr.send(formData)
         } else {
-            editor.set({ message: '请选择文件' })
+            editor.set({ message: t('please_select_file') })
         }
     }
 
@@ -160,23 +177,24 @@
             return
         }
         // 渲染pptx并下载
-        if (download_pptx.innerText.indexOf('下载') == -1) {
+        const downloadBtnText = t('render_download_pptx')
+        if (download_pptx.innerText !== downloadBtnText) {
             return
         }
-        download_pptx.innerText = '正在渲染中...'
+        download_pptx.innerText = t('rendering_pptx')
         let xhr = new XMLHttpRequest()
         xhr.responseType = 'blob'
         xhr.open('POST', 'https://docmee.cn/api/public/ppt/json2ppt?apiKey=' + apiKey)
         xhr.setRequestHeader('Content-Type', 'application/json')
         xhr.onload = function() {
             if (this.status == 200) {
-                download_pptx.innerText = '渲染pptx并下载'
+                download_pptx.innerText = t('render_download_pptx')
                 let blob = this.response
                 if (blob.type == 'application/json') {
                     const reader = new FileReader()
                     reader.onload = function(e) {
                         let json = JSON.parse(e.target.result)
-                        alert('下载失败：' + json.message)
+                        alert(t('alert_download_error') + json.message)
                     }
                     reader.readAsText(blob)
                     return
@@ -298,17 +316,27 @@
             element = createGeometry(geometryName)
         } else if (type == 'table') {
             // 表格
-            let rowColumnDataList = [['第1行1列', '第1行2列', '第1行3列'], ['第2行1列', '第2行2列', '第2行3列'], ['第3行1列', '第3行2列', '第3行3列']]
+            let rowColumnDataList = [
+                [t('table_cell').replace('{row}', '1').replace('{col}', '1'), t('table_cell').replace('{row}', '1').replace('{col}', '2'), t('table_cell').replace('{row}', '1').replace('{col}', '3')],
+                [t('table_cell').replace('{row}', '2').replace('{col}', '1'), t('table_cell').replace('{row}', '2').replace('{col}', '2'), t('table_cell').replace('{row}', '2').replace('{col}', '3')],
+                [t('table_cell').replace('{row}', '3').replace('{col}', '1'), t('table_cell').replace('{row}', '3').replace('{col}', '2'), t('table_cell').replace('{row}', '3').replace('{col}', '3')]
+            ]
             element = createTable(rowColumnDataList)
         } else if (type == 'chart') {
             // 图表
             let rowColumnDataList = []
             if (subType == 'pie' || subType == 'doughnut') {
-                rowColumnDataList = [[' ','销售额'], ['第一季度','8.2'], ['第二季度','3.2'], ['第三季度','1.4'], ['第四季度','1.2']]
+                rowColumnDataList = [[' ', t('chart_sales')], [t('chart_q1'), '8.2'], [t('chart_q2'), '3.2'], [t('chart_q3'), '1.4'], [t('chart_q4'), '1.2']]
             } else {
-                rowColumnDataList = [[' ','系列 1','系列 2','系列 3'], ['类别 1','4.3','2.4','2'], ['类别 2','2.5','4.4','2'], ['类别 3','3.5','1.8','3'], ['类别 4','4.5','2.8','5']]
+                rowColumnDataList = [
+                    [' ', t('chart_series').replace('{n}', '1'), t('chart_series').replace('{n}', '2'), t('chart_series').replace('{n}', '3')],
+                    [t('chart_category').replace('{n}', '1'), '4.3', '2.4', '2'],
+                    [t('chart_category').replace('{n}', '2'), '2.5', '4.4', '2'],
+                    [t('chart_category').replace('{n}', '3'), '3.5', '1.8', '3'],
+                    [t('chart_category').replace('{n}', '4'), '4.5', '2.8', '5']
+                ]
             }
-            element = createChart('图表标题', subType, rowColumnDataList)
+            element = createChart(t('chart_title'), subType, rowColumnDataList)
         }
         if (element) {
             pptxObj.pages[selectIdx].children.push(element)
@@ -316,5 +344,8 @@
         }
         document.getElementById('insert_element').value = ''
     }
+
+    // 初始化国际化
+    applyLanguage()
 </script>
 </html>
